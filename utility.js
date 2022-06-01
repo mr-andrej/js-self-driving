@@ -28,3 +28,22 @@ function getIntersection(valueA, valueB, valueC, valueD) {
 
     return null;
 }
+
+function polysIntersect(polyOne, polyTwo) {
+    for (let i = 0; i < polyOne.length; i++) {
+        for (let j = 0; j < polyTwo.length; j++) {
+            const touch = getIntersection(
+                polyOne[i],
+                polyOne[(i + 1) % polyOne.length],
+                polyTwo[j],
+                polyTwo[(j + 1) % polyTwo.length]
+            );
+
+            if (touch) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

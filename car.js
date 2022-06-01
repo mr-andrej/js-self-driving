@@ -15,13 +15,56 @@ class Car {
         this.acceleration = 0.2;
         this.deceleration = 0.1;
 
+        this.damaged = false;
+
         this.sensor = new Sensor(this);
         this.controls = new Controls();
     }
 
     update(roadBoarders) {
         this.#move();
+        this.polygon = this.#createPolygon();
+        this.damaged = this.#assessDamage(roadBoarders);
         this.sensor.update(roadBoarders);
+    }
+
+    #assessDamage(roadBoarders) {
+        for (let i = 0; i < roadBoarders.length; i++) {
+            if (polysIntersect(this.polygon, roadBoarders[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    #createPolygon() {
+        const points = [];
+        const rad = Math.hypot(this.width, this.height) / 2;
+        const alpha = Math.atan2(this.width, this.height);
+
+        // Top right point
+        points.push({
+            x: this.posX - Math.sin(this.angle - alpha) * rad,
+            y: this.posY - Math.cos(this.angle - alpha) * rad,
+        });
+        // Top left point
+        points.push({
+            x: this.posX - Math.sin(this.angle + alpha) * rad,
+            y: this.posY - Math.cos(this.angle + alpha) * rad,
+        });
+        // Bottom right point
+        points.push({
+            x: this.posX - Math.sin(Math.PI + this.angle - alpha) * rad,
+            y: this.posY - Math.cos(Math.PI + this.angle - alpha) * rad,
+        });
+        // Bottom left point
+        points.push({
+            x: this.posX - Math.sin(Math.PI + this.angle + alpha) * rad,
+            y: this.posY - Math.cos(Math.PI + this.angle + alpha) * rad,
+        });
+
+        return points;
     }
 
     #move() {
@@ -70,20 +113,19 @@ class Car {
     }
 
     draw(ctx) {
-        ctx.save();
-        ctx.translate(this.posX, this.posY);
-        ctx.rotate(-this.angle);
-
+        if (this.damaged) {
+            ctx.fillStyle = "red";
+        } else {
+            ctx.fillStyle = "black";
+        }
         ctx.beginPath();
-        ctx.rect(
-            -this.width / 2, // X of the car is going to be the center inside of the car
-            -this.height / 2,
-            this.width,
-            this.height
-        );
-        ctx.fill();
+        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
 
-        ctx.restore();
+        for (let i = 1; i < this.polygon.length; i++) {
+            ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
+        }
+
+        ctx.fill();
 
         this.sensor.draw(ctx);
     }

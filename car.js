@@ -1,27 +1,83 @@
 class Car {
-    constructor(posX, posY, width, height) {
+    constructor(posX, posY, width, height, controlType, maxSpeed = 3) {
         this.posX = posX;
         this.posY = posY;
         this.width = width;
         this.height = height;
 
         this.speed = 0;
-        this.maxForwardSpeed = 3;
-        this.maxReverseSpeed = 1.5;
-
+        this.maxForwardSpeed = maxSpeed;
+        this.maxReverseSpeed = maxSpeed / 2;
         this.friction = 0.05;
         this.angle = 0;
 
         this.acceleration = 0.2;
         this.deceleration = 0.1;
 
-        this.sensor = new Sensor(this);
-        this.controls = new Controls();
+        this.damaged = false;
+
+        if (controlType == "KEYS") {
+            this.sensor = new Sensor(this);
+        }
+        this.controls = new Controls(controlType);
+        this.polygon = this.#createPolygon();
     }
 
-    update(roadBoarders) {
-        this.#move();
-        this.sensor.update();
+    update(roadBoarders, traffic) {
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.#createPolygon();
+            this.damaged = this.#assessDamage(roadBoarders, traffic);
+        }
+
+        if (this.sensor) {
+            this.sensor.update(roadBoarders, traffic);
+        }
+    }
+
+    #assessDamage(roadBoarders, traffic) {
+        for (let i = 0; i < roadBoarders.length; i++) {
+            if (polysIntersect(this.polygon, roadBoarders[i])) {
+                return true;
+            }
+        }
+
+        for (let i = 0; i < traffic.length; i++) {
+            if (polysIntersect(this.polygon, traffic[i].polygon)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    #createPolygon() {
+        const points = [];
+        const rad = Math.hypot(this.width, this.height) / 2;
+        const alpha = Math.atan2(this.width, this.height);
+
+        // Top right point
+        points.push({
+            x: this.posX - Math.sin(this.angle - alpha) * rad,
+            y: this.posY - Math.cos(this.angle - alpha) * rad,
+        });
+        // Top left point
+        points.push({
+            x: this.posX - Math.sin(this.angle + alpha) * rad,
+            y: this.posY - Math.cos(this.angle + alpha) * rad,
+        });
+        // Bottom right point
+        points.push({
+            x: this.posX - Math.sin(Math.PI + this.angle - alpha) * rad,
+            y: this.posY - Math.cos(Math.PI + this.angle - alpha) * rad,
+        });
+        // Bottom left point
+        points.push({
+            x: this.posX - Math.sin(Math.PI + this.angle + alpha) * rad,
+            y: this.posY - Math.cos(Math.PI + this.angle + alpha) * rad,
+        });
+
+        return points;
     }
 
     #move() {
@@ -69,22 +125,23 @@ class Car {
         this.posY -= Math.cos(this.angle) * this.speed;
     }
 
-    draw(ctx) {
-        ctx.save();
-        ctx.translate(this.posX, this.posY);
-        ctx.rotate(-this.angle);
-
+    draw(ctx, color) {
+        if (this.damaged) {
+            ctx.fillStyle = "red";
+        } else {
+            ctx.fillStyle = color;
+        }
         ctx.beginPath();
-        ctx.rect(
-            -this.width / 2, // X of the car is going to be the center inside of the car
-            -this.height / 2,
-            this.width,
-            this.height
-        );
+        ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
+
+        for (let i = 1; i < this.polygon.length; i++) {
+            ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
+        }
+
         ctx.fill();
 
-        ctx.restore();
-
-        this.sensor.draw(ctx);
+        if (this.sensor) {
+            this.sensor.draw(ctx);
+        }
     }
 }

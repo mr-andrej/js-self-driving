@@ -1,7 +1,7 @@
 const mainCanvas = document.getElementById("mainCanvas");
 mainCanvas.width = 200;
 const networkCanvas = document.getElementById("networkCanvas");
-networkCanvas.width = 400;
+networkCanvas.width = 600;
 const laneNumber = 3;
 
 const carCtx = mainCanvas.getContext("2d");
@@ -13,13 +13,83 @@ const cars = generateCars(N);
 let bestCar = cars[0];
 
 if (localStorage.getItem("bestBrain")) {
-    bestCar.brain = JSON.parse(localStorage.getItem("bestBrain"));
+    for (let i = 0; i < cars.length; i++) {
+        cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
+
+        if (i != 0) {
+            NeuralNetwork.mutate(cars[i].brain, 0.1);
+        }
+    }
 }
 
 const traffic = [
     new Car(
         road.getLaneCenter(Math.floor(laneNumber / 2)),
         -100,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(Math.floor(laneNumber / 2)),
+        -900,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(Math.floor(0)),
+        -1000,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(Math.floor(1)),
+        -1000,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(Math.floor(1)),
+        -500,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(Math.floor(laneNumber / 2)),
+        -600,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(2),
+        -500,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(2),
+        -300,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+    new Car(
+        road.getLaneCenter(0),
+        -300,
         30,
         50,
         "DUMMY",
@@ -75,7 +145,7 @@ function animate(time) {
 
     road.draw(carCtx);
     for (let i = 0; i < traffic.length; i++) {
-        traffic[i].draw(carCtx, "pink");
+        traffic[i].draw(carCtx, "purple");
     }
     carCtx.globalAlpha = 0.2;
     for (let i = 0; i < cars.length; i++) {

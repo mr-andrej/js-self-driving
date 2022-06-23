@@ -29,7 +29,8 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1, // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        getRandomColor()
     ),
     new Car(
         road.getLaneCenter(Math.floor(laneNumber / 2)),
@@ -37,7 +38,8 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1,
+        getRandomColor()
     ),
     new Car(
         road.getLaneCenter(Math.floor(0)),
@@ -45,7 +47,8 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1,
+        getRandomColor()
     ),
     new Car(
         road.getLaneCenter(Math.floor(1)),
@@ -53,7 +56,8 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1,
+        getRandomColor()
     ),
     new Car(
         road.getLaneCenter(Math.floor(1)),
@@ -61,7 +65,8 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1,
+        getRandomColor()
     ),
     new Car(
         road.getLaneCenter(Math.floor(laneNumber / 2)),
@@ -69,32 +74,12 @@ const traffic = [
         30,
         50,
         "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+        1,
+        getRandomColor()
     ),
-    new Car(
-        road.getLaneCenter(2),
-        -500,
-        30,
-        50,
-        "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
-    ),
-    new Car(
-        road.getLaneCenter(2),
-        -300,
-        30,
-        50,
-        "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
-    ),
-    new Car(
-        road.getLaneCenter(0),
-        -300,
-        30,
-        50,
-        "DUMMY",
-        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
-    ),
+    new Car(road.getLaneCenter(2), -500, 30, 50, "DUMMY", 1, getRandomColor()),
+    new Car(road.getLaneCenter(2), -300, 30, 50, "DUMMY", 1, getRandomColor()),
+    new Car(road.getLaneCenter(0), -300, 30, 50, "DUMMY", 1, getRandomColor()),
 ];
 
 animate();
@@ -145,11 +130,11 @@ function animate(time) {
 
     road.draw(carCtx);
     for (let i = 0; i < traffic.length; i++) {
-        traffic[i].draw(carCtx, "purple");
+        traffic[i].draw(carCtx);
     }
     carCtx.globalAlpha = 0.2;
     for (let i = 0; i < cars.length; i++) {
-        cars[i].draw(carCtx, "blue");
+        cars[i].draw(carCtx);
     }
     carCtx.globalAlpha = 1;
     bestCar.draw(carCtx, "green", true);

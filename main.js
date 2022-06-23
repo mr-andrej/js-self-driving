@@ -8,13 +8,29 @@ const car = new Car(
     road.getLaneCenter(Math.floor(laneNumber / 2)),
     100,
     30,
-    50
+    50,
+    "KEYS"
 );
+const traffic = [
+    new Car(
+        road.getLaneCenter(Math.floor(laneNumber / 2)),
+        -100,
+        30,
+        50,
+        "DUMMY",
+        1 // Any faster than 1 and the hits from the rear don't register properly for the traffic cars
+    ),
+];
 
 animate();
+console.table(traffic);
+console.table([car]);
 
 function animate() {
-    car.update(road.borders);
+    car.update(road.borders, traffic);
+    for (let i = 0; i < traffic.length; i++) {
+        traffic[i].update(road.borders, [car]);
+    }
 
     canvas.height = window.innerHeight; // Resizing the canvas also redraws/"clears" it
 
@@ -23,6 +39,9 @@ function animate() {
 
     road.draw(ctx);
     car.draw(ctx);
+    for (let i = 0; i < traffic.length; i++) {
+        traffic[i].draw(ctx);
+    }
 
     ctx.restore();
     requestAnimationFrame(animate);

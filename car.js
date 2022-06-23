@@ -1,14 +1,13 @@
 class Car {
-    constructor(posX, posY, width, height) {
+    constructor(posX, posY, width, height, controlType, maxSpeed = 3) {
         this.posX = posX;
         this.posY = posY;
         this.width = width;
         this.height = height;
 
         this.speed = 0;
-        this.maxForwardSpeed = 3;
-        this.maxReverseSpeed = 1.5;
-
+        this.maxForwardSpeed = maxSpeed;
+        this.maxReverseSpeed = maxSpeed / 2;
         this.friction = 0.05;
         this.angle = 0;
 
@@ -17,20 +16,34 @@ class Car {
 
         this.damaged = false;
 
-        this.sensor = new Sensor(this);
-        this.controls = new Controls();
-    }
-
-    update(roadBoarders) {
-        this.#move();
+        if (controlType == "KEYS") {
+            this.sensor = new Sensor(this);
+        }
+        this.controls = new Controls(controlType);
         this.polygon = this.#createPolygon();
-        this.damaged = this.#assessDamage(roadBoarders);
-        this.sensor.update(roadBoarders);
     }
 
-    #assessDamage(roadBoarders) {
+    update(roadBoarders, traffic) {
+        if (!this.damaged) {
+            this.#move();
+            this.polygon = this.#createPolygon();
+            this.damaged = this.#assessDamage(roadBoarders, traffic);
+        }
+
+        if (this.sensor) {
+            this.sensor.update(roadBoarders, traffic);
+        }
+    }
+
+    #assessDamage(roadBoarders, traffic) {
         for (let i = 0; i < roadBoarders.length; i++) {
             if (polysIntersect(this.polygon, roadBoarders[i])) {
+                return true;
+            }
+        }
+
+        for (let i = 0; i < traffic.length; i++) {
+            if (polysIntersect(this.polygon, traffic[i].polygon)) {
                 return true;
             }
         }
@@ -127,6 +140,8 @@ class Car {
 
         ctx.fill();
 
-        this.sensor.draw(ctx);
+        if (this.sensor) {
+            this.sensor.draw(ctx);
+        }
     }
 }
